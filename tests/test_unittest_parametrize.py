@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 from types import SimpleNamespace
+from unittest import TestResult
 from unittest import mock
 
 import pytest
@@ -11,10 +12,10 @@ from unittest_parametrize import param
 from unittest_parametrize import parametrize
 
 
-def run_tests(test_case: type[ParametrizedTestCase]) -> None:
+def run_tests(test_case: type[ParametrizedTestCase]) -> TestResult:
     loader = unittest.TestLoader()
     suite = loader.loadTestsFromTestCase(test_case)
-    unittest.TextTestRunner().run(suite)
+    return unittest.TextTestRunner().run(suite)
 
 
 def test_wrong_length_argnames():
@@ -411,12 +412,9 @@ def test_assertion_raised_with_param_info():
         def test_square(self, x: int, expected: int) -> None:
             self.assertEqual(x, expected)
 
-    exc = None
-    try:
-        run_tests(SquareTests)
-    except AssertionError as e:
-        exc = e
+    test_result = run_tests(SquareTests)
 
-    assert exc is not None
-    assert type(exc) is AssertionError
-    assert exc.args[0] == expected_msg
+    assert len(test_result.errors) == 1
+
+    (_, failure_msg) = test_result.errors[0]
+    assert expected_msg in failure_msg
