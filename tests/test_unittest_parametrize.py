@@ -401,3 +401,22 @@ def test_zero_parametrized():
     assert ran is False
     assert not hasattr(NoTests, "test_never_runs")
     assert not hasattr(NoTests, "test_never_runs_0")
+
+
+def test_assertion_raised_with_param_info():
+    expected_msg = "test_square failed with params: {'x': 1, 'expected': 2}"
+
+    class SquareTests(ParametrizedTestCase):
+        @parametrize("x,expected", ((1, 2),))
+        def test_square(self, x: int, expected: int) -> None:
+            self.assertEqual(x, expected)
+
+    exc = None
+    try:
+        run_tests(SquareTests)
+    except AssertionError as e:
+        exc = e
+
+    assert exc is not None
+    assert type(exc) is AssertionError
+    assert exc.args[0] == expected_msg
