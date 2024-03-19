@@ -414,7 +414,7 @@ def test_assertion_raised_with_param_info():
 
     test_result = run_tests(SquareTests)
 
-    assert len(test_result.errors) == 1
+    assert len(test_result.failures) == 1
 
-    (_, failure_msg) = test_result.errors[0]
+    (_, failure_msg) = test_result.failures[0]
     assert expected_msg in failure_msg
